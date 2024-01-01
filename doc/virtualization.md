@@ -15,7 +15,7 @@ Debian GNU/Linux 10 (buster)
 
 #### Sources
 
--   [Download Debian Buster _(Not needed with VirtualBox)_](https://www.debian.org/releases/buster/debian-installer/)
+-   [Download Debian Buster](https://www.debian.org/releases/buster/debian-installer/)
 -   [Download VM tool - VirtualBox](https://www.virtualbox.org/)
 -   [Download VM tool - UTM _(Mac only)_](https://mac.getutm.app/)
 
