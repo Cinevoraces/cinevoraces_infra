@@ -1,10 +1,26 @@
 # Cinévoraces Infra
 
-Be sure to set all scripts executable at _clone/pull_
+## Setup
 
-```bash
-find ./scripts -type f -name "*.sh" -exec chmod +x {} \;
-```
+-   Generate your SSH Key
+
+    ```bash
+    ssh-keygen -t ed25519 -C "cinevoraces@gmail.com" -f ~/.ssh/id_ed25519 -N '' && \
+    cat ~/.ssh/id_ed25519.pub
+    ```
+
+-   Clone the repositories
+
+    ```bash
+    git clone git@github.com:Cinevoraces/cinevoraces_infra.git && \
+    git clone git@github.com:Cinevoraces/cinevoraces.git
+    ```
+
+-   Make all scripts executable at _clone/pull_
+
+    ```bash
+    find ./scripts -type f -name "*.sh" -exec chmod +x {} \;
+    ```
 
 ### Documentation
 
@@ -15,6 +31,14 @@ find ./scripts -type f -name "*.sh" -exec chmod +x {} \;
 #### Developpment
 
 ##### [DEV | Setup virtualized production VM](./doc/virtualization.md)
+
+#### Debug
+
+##### [DEBUG | Generate Password (./scripts/node/generate_psw.mjs)](./scripts/node/generate_psw.mjs)
+
+> ```sh
+> node ./scripts/node/generate_psw.msj --psw=foo --salt=10
+> ```
 
 #### Recommended tools
 
