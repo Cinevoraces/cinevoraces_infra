@@ -5,7 +5,9 @@
 Use the following command to setup the server
 
 ```bash
-git clone git@github.com:Cinevoraces/cinevoraces_infra.git && \
+git clone https://github.com/Cinevoraces/cinevoraces_infra.git && \
+cd cinevoraces_infra && \
+git checkout infra_ubuntu23
 find ./scripts -type f -name "*.sh" -exec chmod +x {} \; && \
 ./scripts/init_server.sh
 ```
@@ -13,6 +15,12 @@ find ./scripts -type f -name "*.sh" -exec chmod +x {} \; && \
 ## Documentation
 
 -   [**DEV | Setup virtualized production VM**](./doc/virtualization.md)
+-   [**DEBUG | Update Nginx config (./scripts/update_nginx_conf.sh)**](./scripts/update_nginx_conf.sh)
+
+    ```sh
+    ./scripts/update_nginx_conf.sh
+    ```
+
 -   [**DEBUG | Generate Password (./scripts/node/generate_psw.mjs)**](./scripts/node/generate_psw.mjs)
 
     ```sh
