@@ -14,11 +14,22 @@ find ./scripts -type f -name "*.sh" -exec chmod +x {} \; && \
 
 ## Documentation
 
+### DEV
+
 -   [**DEV | Setup virtualized production VM**](./doc/virtualization.md)
+
+### DEBUG
+
 -   [**DEBUG | Update Nginx config (./scripts/update_nginx_conf.sh)**](./scripts/update_nginx_conf.sh)
 
     ```sh
     ./scripts/update_nginx_conf.sh
+    ```
+
+-   [**DEBUG | Revert Nginx config (./scripts/revert_nginx_conf.sh)**](./scripts/revert_nginx_conf.sh)
+
+    ```sh
+    ./scripts/revert_nginx_conf.sh
     ```
 
 -   [**DEBUG | Generate Password (./scripts/node/generate_psw.mjs)**](./scripts/node/generate_psw.mjs)
