@@ -7,7 +7,7 @@ Use the following command to setup the server
 ```bash
 git clone https://github.com/Cinevoraces/cinevoraces_infra.git && \
 cd cinevoraces_infra && \
-git checkout infra_ubuntu23
+git checkout infra_ubuntu23 && \
 find ./scripts -type f -name "*.sh" -exec chmod +x {} \; && \
 ./scripts/init_server.sh
 ```
