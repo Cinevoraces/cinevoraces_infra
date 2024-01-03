@@ -1,10 +1,6 @@
 #!/bin/bash
 
-if [ ! -f ./.env ]; then
-  echo ".env file does not exist. Add an .env file to the root of cinevoraces_infra."
-  echo "Stopping execution."
-  exit 1
-fi
+START_TIME=$(date +%s)
 
 echo "###########################################"
 echo "Installing Dependencies..."
@@ -57,6 +53,39 @@ echo "###########################################"
 git clone https://github.com/Cinevoraces/cinevoraces.git
 
 echo "###########################################"
+echo "Setting environnement variables..."
+echo "###########################################"
+if [ ! -f ./cinevoraces/app/.env.local ]; then
+  echo "Set App .env.local file (Frontend)"
+  echo "Press any key to continue..."
+  read -n 1 -s -r
+  touch ./cinevoraces/app/.env.local
+  nano ./cinevoraces/app/.env.local
+else
+  echo ".env.local already exists."
+fi
+
+if [ ! -f ./cinevoraces/api/.env ]; then
+  echo "Set Api .env file (Backend)"
+  echo "Press any key to continue..."
+  read -n 1 -s -r
+  touch ./cinevoraces/api/.env
+  nano ./cinevoraces/api/.env
+else
+  echo ".env already exists."
+fi
+
+if [ ! -f ./cinevoraces/data/.env ]; then
+  echo "Set Postgres .env file (Backend)"
+  echo "Press any key to continue..."
+  read -n 1 -s -r
+  touch ./cinevoraces/data/.env
+  nano ./cinevoraces/data/.env
+else
+  echo ".env already exists."
+fi
+
+echo "###########################################"
 echo "Building cinevoraces..."
 echo "###########################################"
 sudo docker compose build
@@ -80,3 +109,11 @@ echo "###########################################"
 echo "Updating nginx configuration..."
 echo "###########################################"
 sudo cp ./nginx/default.conf /etc/nginx/conf.d/default.conf
+
+
+END_TIME=$(date +%s)
+BUILD_TIME=$((END_TIME - START_TIME))
+echo "###########################################"
+echo "Server initialization completed."
+echo "Build time: $BUILD_TIME seconds"
+echo "###########################################"
