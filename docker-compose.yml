@@ -27,7 +27,7 @@ services:
             - 3005:3005
         restart: always
         volumes:
-            - fastify_public:./cinevoraces/api/public/
+            - fastify_public:/api/public/
 
     app:
         container_name: app

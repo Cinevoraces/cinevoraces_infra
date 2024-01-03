@@ -20,7 +20,7 @@ sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin nginx
 
 echo "Installing certbot..."
-sudo snap install -y --classic certbot
+sudo snap install --classic certbot
 
 echo "Enabling/Starting services..."
 echo "y" | sudo ufw enable
@@ -31,16 +31,19 @@ sudo ufw allow 'OpenSSH'
 sudo ufw allow 'Nginx HTTP'
 sudo ufw allow 'Nginx HTTPS'
 
-echo "Copiying initial nginx configuration..."
-sudo rm -rf etc/nginx/sites-enabled/default
-sudo cp ./nginx/initial.conf /etc/nginx/conf.d/default.conf
-
 echo "Downloading cinevoraces..."
 git clone https://github.com/Cinevoraces/cinevoraces.git
 
 echo "Building cinevoraces..."
+docker compose build
 docker compose up -d
 
+echo "Copiying initial nginx configuration..."
+sudo rm -rf etc/nginx/sites-enabled/default
+sudo cp ./nginx/initial.conf /etc/nginx/conf.d/default.conf
+
 echo "Installing certificates..."
-sudo ln -s /snap/bin/certbot /usr/bin/certbot
+if [ ! -L /usr/bin/certbot ]; then
+    sudo ln -s /snap/bin/certbot /usr/bin/certbot
+fi
 sudo certbot --nginx
