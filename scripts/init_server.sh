@@ -39,11 +39,14 @@ docker compose build
 docker compose up -d
 
 echo "Copiying initial nginx configuration..."
-sudo rm -rf etc/nginx/sites-enabled/default
+sudo rm -rf /etc/nginx/sites-enabled/default
 sudo cp ./nginx/initial.conf /etc/nginx/conf.d/default.conf
 
 echo "Installing certificates..."
 if [ ! -L /usr/bin/certbot ]; then
     sudo ln -s /snap/bin/certbot /usr/bin/certbot
 fi
-sudo certbot --nginx
+sudo certbot --nginx --non-interactive --agree-tos --email cinevoraces@gmail.com --domains cinevoraces.fr,www.cinevoraces.fr
+
+echo "Updating nginx configuration..."
+sudo cp ./nginx/default.conf /etc/nginx/conf.d/default.conf
