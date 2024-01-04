@@ -5,10 +5,7 @@ START_TIME=$(date +%s)
 # Import server functions
 (crontab -l 2>/dev/null; echo "@reboot /home/ubuntu/cinevoraces_infra/scripts/on_boot.sh") | crontab -
 
-/home/ubuntu/cinevoraces_infra/scripts/env_set.sh
-/home/ubuntu/cinevoraces_infra/scripts/pg_access.sh
-/home/ubuntu/cinevoraces_infra/scripts/nginx_conf_update.sh
-/home/ubuntu/cinevoraces_infra/scripts/nginx_conf_revert.sh
+/home/ubuntu/cinevoraces_infra/scripts/on_boot.sh
 
 # Install Dependencies
 sudo apt update
@@ -30,24 +27,29 @@ echo \
 sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# Add Docker firewall rules to UFW
-sudo wget -O /usr/local/bin/ufw-docker https://github.com/chaifeng/ufw-docker/raw/master/ufw-docker
-sudo chmod +x /usr/local/bin/ufw-docker
-sudo ufw-docker install
-sudo systemctl restart ufw
-
 sudo groupadd docker
 sudo usermod -aG docker $USER
-newgrp docker
+su - $USER
 
 # Firewall config
-echo "Define SSH port:"
-read ssh_port
+ssh_port=52255
+echo "Define SSH port (default is $ssh_port):"
+read input_ssh_port
+if [ -n "$input_ssh_port" ]; then
+    ssh_port=$input_ssh_port
+fi
 
 sudo ufw allow 'OpenSSH'
 sudo ufw allow 'Nginx HTTP'
 sudo ufw allow 'Nginx HTTPS'
 sudo ufw allow $ssh_port/tcp
+
+# Add Docker firewall rules to UFW
+sudo wget -O /usr/local/bin/ufw-docker \
+  https://github.com/chaifeng/ufw-docker/raw/master/ufw-docker
+sudo chmod +x /usr/local/bin/ufw-docker
+yes | sudo ufw-docker install
+sudo systemctl restart ufw
 
 sudo sed -i 's/ListenStream=22/ListenStream=$ssh_port/g' /lib/systemd/system/ssh.socket
 
