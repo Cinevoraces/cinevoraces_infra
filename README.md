@@ -20,16 +20,31 @@ find ./scripts -type f -name "*.sh" -exec chmod +x {} \; && \
 
 ### DEBUG
 
--   [**DEBUG | Update Nginx config (./scripts/update_nginx_conf.sh)**](./scripts/update_nginx_conf.sh)
+-   **DEBUG | Update Nginx config**
 
     ```sh
-    ./scripts/update_nginx_conf.sh
+    # Revert config with available backups
+    nginx_conf_revert
+    # Update config using default.conf
+    nginx_conf_update
     ```
 
--   [**DEBUG | Revert Nginx config (./scripts/revert_nginx_conf.sh)**](./scripts/revert_nginx_conf.sh)
+-   **DEBUG | Update Postgress access**
 
     ```sh
-    ./scripts/revert_nginx_conf.sh
+    # Enable one or many IP for remote access
+    pg_enable_access
+    # Disable one or many IP for remote access
+    pg_disable_access
+    ```
+
+-   **DEBUG | Set project variables**
+
+    ```sh
+    # Open env file using nano, create file if not existing
+    set_app_variables
+    set_api_variables
+    set_postgres_variables
     ```
 
 -   [**DEBUG | Generate Password (./scripts/node/generate_psw.mjs)**](./scripts/node/generate_psw.mjs)

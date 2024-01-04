@@ -2,6 +2,11 @@
 
 START_TIME=$(date +%s)
 
+crontab -e
+@reboot /home/ubuntu/cinevoraces_infra/scripts/on_boot.sh
+
+./scripts/on_boot.sh
+
 echo "###########################################"
 echo "Installing Dependencies..."
 echo "###########################################"
@@ -29,6 +34,10 @@ echo "###########################################"
 sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin nginx
 
+sudo groupadd docker
+sudo usermod -aG docker $USER
+newgrp docker
+
 echo "###########################################"
 echo "Installing certbot..."
 echo "###########################################"
@@ -52,16 +61,6 @@ sudo ufw allow 'OpenSSH'
 sudo ufw allow 'Nginx HTTP'
 sudo ufw allow 'Nginx HTTPS'
 
-echo "Enter IP addresses to allow Postgres access (separated by spaces):"
-read -a IPS
-for IP in "${IPS[@]}"
-do
-  sudo ufw route allow proto tcp from $IP to any port 5432
-done
-sudo ufw status
-echo "Press any key to continue..."
-read -n 1 -s -r
-
 echo "###########################################"
 echo "Downloading cinevoraces..."
 echo "###########################################"
@@ -71,33 +70,33 @@ echo "###########################################"
 echo "Setting environnement variables..."
 echo "###########################################"
 if [ ! -f ./cinevoraces/app/.env.local ]; then
-  echo "Set App .env.local file (Frontend)"
-  echo "Press any key to continue..."
-  read -n 1 -s -r
-  touch ./cinevoraces/app/.env.local
-  nano ./cinevoraces/app/.env.local
+    echo "Set App .env.local file (Frontend)"
+    echo "Press any key to continue..."
+    read -n 1 -s -r
+    touch ./cinevoraces/app/.env.local
+    nano ./cinevoraces/app/.env.local
 else
-  echo ".env.local already exists."
+    echo ".env.local already exists."
 fi
 
 if [ ! -f ./cinevoraces/api/.env ]; then
-  echo "Set Api .env file (Backend)"
-  echo "Press any key to continue..."
-  read -n 1 -s -r
-  touch ./cinevoraces/api/.env
-  nano ./cinevoraces/api/.env
+    echo "Set Api .env file (Backend)"
+    echo "Press any key to continue..."
+    read -n 1 -s -r
+    touch ./cinevoraces/api/.env
+    nano ./cinevoraces/api/.env
 else
-  echo ".env already exists."
+    echo ".env already exists."
 fi
 
 if [ ! -f ./cinevoraces/data/.env ]; then
-  echo "Set Postgres .env file (Backend)"
-  echo "Press any key to continue..."
-  read -n 1 -s -r
-  touch ./cinevoraces/data/.env
-  nano ./cinevoraces/data/.env
+    echo "Set Postgres .env file (Backend)"
+    echo "Press any key to continue..."
+    read -n 1 -s -r
+    touch ./cinevoraces/data/.env
+    nano ./cinevoraces/data/.env
 else
-  echo ".env already exists."
+    echo ".env already exists."
 fi
 
 echo "###########################################"
