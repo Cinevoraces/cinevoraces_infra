@@ -29,7 +29,6 @@ sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin d
 
 sudo groupadd docker
 sudo usermod -aG docker $USER
-su - $USER
 
 # Firewall config
 ssh_port=52255
@@ -51,7 +50,7 @@ sudo chmod +x /usr/local/bin/ufw-docker
 yes | sudo ufw-docker install
 sudo systemctl restart ufw
 
-sudo sed -i 's/ListenStream=22/ListenStream=$ssh_port/g' /lib/systemd/system/ssh.socket
+sudo sed -i "s/ListenStream=22/ListenStream=$ssh_port/g" /lib/systemd/system/ssh.socket
 
 sudo systemctl start nginx
 sudo systemctl enable fail2ban
