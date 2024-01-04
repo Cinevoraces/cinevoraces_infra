@@ -3,21 +3,20 @@
 START_TIME=$(date +%s)
 
 # Import server functions
-crontab -e
-@reboot /home/ubuntu/cinevoraces_infra/scripts/on_boot.sh
+(crontab -l 2>/dev/null; echo "@reboot /home/ubuntu/cinevoraces_infra/scripts/on_boot.sh") | crontab -
 ./scripts/on_boot.sh
 
 # Install Dependencies
 sudo apt update
 sudo apt install -y ca-certificates curl gnupg nginx fail2ban
 sudo snap install --classic certbot
+echo "y" | sudo ufw enable
 ./scripts/install_docker.sh
 
 # Firewall config
 echo "Define SSH port:"
 read ssh_port
 
-echo "y" | sudo ufw enable
 sudo ufw allow 'OpenSSH'
 sudo ufw allow 'Nginx HTTP'
 sudo ufw allow 'Nginx HTTPS'
@@ -29,7 +28,6 @@ sudo systemctl start nginx
 sudo systemctl enable fail2ban
 sudo systemctl daemon-reload 
 sudo systemctl restart ssh.service
-sudo systemctl restart ufw
 
 # Install cinevoraces
 ./scripts/install_cinevoraces.sh
