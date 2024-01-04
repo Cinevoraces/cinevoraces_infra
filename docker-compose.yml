@@ -18,6 +18,7 @@ services:
         hostname: cinevoraces_api
         env_file:
             - ./cinevoraces/api/.env
+            - ./cinevoraces/data/.env
         depends_on:
             - postgres
         build:
