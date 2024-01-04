@@ -6,7 +6,7 @@ echo "###########################################"
 echo "Installing Dependencies..."
 echo "###########################################"
 sudo apt update
-sudo apt install -y ca-certificates curl gnupg
+sudo apt install -y ca-certificates curl gnupg iptables-persistent
 
 echo "###########################################"
 echo "Installing Docker's official GPG key..."
@@ -41,11 +41,26 @@ echo "y" | sudo ufw enable
 sudo systemctl start nginx
 
 echo "###########################################"
-echo "Allowing OpenSSH, Nginx HTTP and Nginx HTTPS through UFW..."
+echo "Setting Firewall rules..."
 echo "###########################################"
+sudo wget -O /usr/local/bin/ufw-docker https://github.com/chaifeng/ufw-docker/raw/master/ufw-docker
+sudo chmod +x /usr/local/bin/ufw-docker
+sudo ufw-docker install
+sudo systemctl restart ufw
+
 sudo ufw allow 'OpenSSH'
 sudo ufw allow 'Nginx HTTP'
 sudo ufw allow 'Nginx HTTPS'
+
+echo "Enter IP addresses to allow Postgres access (separated by spaces):"
+read -a IPS
+for IP in "${IPS[@]}"
+do
+  sudo ufw route allow proto tcp from $IP to any port 5432
+done
+sudo ufw status
+echo "Press any key to continue..."
+read -n 1 -s -r
 
 echo "###########################################"
 echo "Downloading cinevoraces..."
@@ -109,7 +124,6 @@ echo "###########################################"
 echo "Updating nginx configuration..."
 echo "###########################################"
 sudo cp ./nginx/default.conf /etc/nginx/conf.d/default.conf
-
 
 END_TIME=$(date +%s)
 BUILD_TIME=$((END_TIME - START_TIME))
