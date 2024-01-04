@@ -14,13 +14,17 @@ find ./scripts -type f -name "*.sh" -exec chmod +x {} \; && \
 
 ## Documentation
 
-### DEV
+-   [**Setup virtualized production VM**](./doc/virtualization.md)
 
--   [**DEV | Setup virtualized production VM**](./doc/virtualization.md)
+## Server commands
 
-### DEBUG
+-   **Download backup using ssh**
 
--   **DEBUG | Update Nginx config**
+    ```bash
+    scp -P <ssh_port> <username>@<ip_address>:/home/ubuntu/cinevoraces_infra/backup/<backup_name>.tar \<destination_file>.tar
+    ```
+
+-   **Update Nginx config**
 
     ```sh
     # Revert config with available backups
@@ -29,7 +33,7 @@ find ./scripts -type f -name "*.sh" -exec chmod +x {} \; && \
     nginx_conf_update
     ```
 
--   **DEBUG | Update Postgress access**
+-   **Update Postgress access**
 
     ```sh
     # Enable one or many IP for remote access
@@ -38,7 +42,7 @@ find ./scripts -type f -name "*.sh" -exec chmod +x {} \; && \
     pg_disable_access
     ```
 
--   **DEBUG | Set project variables**
+-   **Set project variables**
 
     ```sh
     # Open env file using nano, create file if not existing
@@ -47,7 +51,7 @@ find ./scripts -type f -name "*.sh" -exec chmod +x {} \; && \
     set_postgres_variables
     ```
 
--   [**DEBUG | Generate Password (./scripts/node/generate_psw.mjs)**](./scripts/node/generate_psw.mjs)
+-   [**Generate Password (./scripts/node/generate_psw.mjs)**](./scripts/node/generate_psw.mjs)
 
     ```sh
     node ./scripts/node/generate_psw.msj --psw=foo --salt=10
