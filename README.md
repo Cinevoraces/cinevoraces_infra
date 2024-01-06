@@ -9,7 +9,7 @@ git clone https://github.com/Cinevoraces/cinevoraces_infra.git && \
 cd cinevoraces_infra && \
 find ./scripts -type f -name "*.sh" -exec chmod +x {} \; && \
 ./scripts/init_server.sh && \
-source ~/.bashrc && \
+source ~/.bashrc
 ```
 
 ## Documentation
