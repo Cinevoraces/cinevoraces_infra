@@ -52,6 +52,7 @@ yes | sudo ufw-docker install
 sudo systemctl restart ufw
 
 sudo sed -i "s/ListenStream=22/ListenStream=$ssh_port/g" /lib/systemd/system/ssh.socket
+sudo sed -i "s/#Port 22/Port $ssh_port/g" /etc/ssh/sshd_config
 
 sudo systemctl start nginx
 sudo systemctl enable fail2ban
