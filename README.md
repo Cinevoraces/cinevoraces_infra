@@ -15,6 +15,7 @@ find ./scripts -type f -name "*.sh" -exec chmod +x {} \; && \
 ## Documentation
 
 -   [**Setup virtualized production VM**](./doc/virtualization.md)
+-   [**Setup GDrive remote**](./doc/gdrive_remote.md)
 
 ## Server commands
 

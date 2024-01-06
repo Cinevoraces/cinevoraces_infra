@@ -3,9 +3,10 @@
 START_TIME=$(date +%s)
 
 # Import server functions
-(crontab -l 2>/dev/null; echo "@reboot /home/ubuntu/cinevoraces_infra/scripts/on_boot.sh") | crontab -
-
 /home/ubuntu/cinevoraces_infra/scripts/on_boot.sh
+
+# Set cron jobs
+(crontab -l 2>/dev/null; echo "@reboot /home/ubuntu/cinevoraces_infra/scripts/on_boot.sh"; echo "00 3 * * * backup_db") | crontab -
 
 # Install Dependencies
 sudo apt update
