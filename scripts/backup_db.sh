@@ -1,75 +1,121 @@
 #!/bin/bash
 
-function backup_db {
-    today=`date +%Y-%m-%d.%H:%M:%S`
-    path_to_infra=/home/ubuntu/cinevoraces_infra
-    path_to_backup="${path_to_infra}/backup/backup_${today}"
-    source "${path_to_infra}/cinevoraces/data/.env"
+START_TIME=$(date +%s)
 
-    # Create backup
-    mkdir $path_to_backup
-    docker exec postgres pg_dump -U ${POSTGRES_USER} -F c ${POSTGRES_DB} -v -Z 9  > "${path_to_backup}/database_backup_${today}"
-    docker cp api:/api/public "${path_to_backup}/public" 
-    tar -cvf "${path_to_backup}.tar" $path_to_backup
-    rm -rf $path_to_backup
-    echo "Backup completed => "${path_to_backup}.tar""
+# Set cron jobs
+(crontab -l 2>/dev/null; echo "00 3 * * * backup_db") | crontab -
 
-    # Delete oldest backup if more than 10 backups saved
-    backup_count=$(ls | wc -l)
-    if [ $backup_count -lt 11 ]
-        then
-            echo 'Less than 10 backups saved, keeping previous backups.'
-        else
-            echo '10 backups already saved, deleting oldest'
-            rm "$(ls -t | tail -1)"
-    fi
-}
+# Install Dependencies
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg nginx fail2ban
+sudo snap install --classic certbot
+echo "y" | sudo ufw enable
 
-function restore_db {
-    path_to_infra=/home/ubuntu/cinevoraces_infra
-    backup_folder="${path_to_infra}/backup"
-    source "${path_to_infra}/cinevoraces/data/.env"
+# Add Docker's official GPG key
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --yes --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
-    # Get a list of backup files
-    backup_files=$(ls $backup_folder)
+# Add Docker's repository to Apt sources
+echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-    # Check if there are any backup files
-    if [ -z "$backup_files" ]; then
-        echo "No backup files found."
-        return 1
-    fi
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-    # Print the backup files and prompt the user to select one
-    echo "Please select a backup file to restore:"
-    select backup_file in $backup_files Cancel; do
-        case $backup_file in
-            Cancel )
-                echo "Operation cancelled."
-                return 0
-                ;;
-            * )
-                if [ -n "$backup_file" ]; then
-                    # Restore the selected backup file
-                    tar -xvf "${backup_folder}/${backup_file}" -C $backup_folder
-                    
-                    # Stop main containers during file replacement
-                    sudo docker stop api
-                    sudo docker stop app
+sudo groupadd docker
+sudo usermod -aG docker $USER
 
-                    # Update docker volumes
-                    sudo docker exec api rm -rf public
-                    sudo docker cp "${backup_folder}/${backup_file%.*}/public" api:/api/public
-                    sudo docker exec postgres pg_restore -c --no-owner -v -U ${POSTGRES_USER} -d ${POSTGRES_DB} "${backup_folder}/${backup_file%.*}/database_${backup_file%.*}"
-                    sudo docker start api
-                    sudo docker start app
+# Firewall config
+ssh_port=52255
+echo "Define SSH port (default is $ssh_port):"
+read input_ssh_port
+if [ -n "$input_ssh_port" ]; then
+    ssh_port=$input_ssh_port
+fi
 
-                    # Cleanup folder
-                    rm -rf "${backup_folder}/${backup_file%.*}"
+sudo ufw allow 'OpenSSH'
+sudo ufw allow 'Nginx HTTP'
+sudo ufw allow 'Nginx HTTPS'
+sudo ufw allow $ssh_port/tcp
 
-                    echo "Database restored."
-                    return 0
-                fi
-                ;;
-        esac
-    done
-}
+# Add Docker firewall rules to UFW
+sudo wget -O /usr/local/bin/ufw-docker \
+  https://github.com/chaifeng/ufw-docker/raw/master/ufw-docker
+sudo chmod +x /usr/local/bin/ufw-docker
+yes | sudo ufw-docker install
+sudo systemctl restart ufw
+
+sudo sed -i "s/ListenStream=22/ListenStream=$ssh_port/g" /lib/systemd/system/ssh.socket
+sudo sed -i "s/#Port 22/Port $ssh_port/g" /etc/ssh/sshd_config
+
+sudo systemctl start nginx
+sudo systemctl enable fail2ban
+sudo systemctl daemon-reload 
+sudo systemctl restart ssh.service
+
+# Download cinevoraces from public source
+git clone https://github.com/Cinevoraces/cinevoraces.git
+cd cinevoraces
+git checkout infra_safaridigital
+cd ..
+
+# Set .env files
+if [ ! -f ./cinevoraces/app/.env.local ]; then
+    echo "Set App .env.local file (Frontend)"
+    echo "Press any key to continue..."
+    read -n 1 -s -r
+    touch ./cinevoraces/app/.env.local
+    nano ./cinevoraces/app/.env.local
+else
+    echo ".env.local already exists."
+fi
+
+if [ ! -f ./cinevoraces/api/.env ]; then
+    echo "Set Api .env file (Backend)"
+    echo "Press any key to continue..."
+    read -n 1 -s -r
+    touch ./cinevoraces/api/.env
+    nano ./cinevoraces/api/.env
+else
+    echo ".env already exists."
+fi
+
+if [ ! -f ./cinevoraces/data/.env ]; then
+    echo "Set Postgres .env file (Backend)"
+    echo "Press any key to continue..."
+    read -n 1 -s -r
+    touch ./cinevoraces/data/.env
+    nano ./cinevoraces/data/.env
+else
+    echo ".env already exists."
+fi
+
+# Build and run docker images
+sudo docker compose build
+sudo docker compose up -d
+
+# Initial nginx configuration (needed for certbot)
+sudo rm -rf /etc/nginx/sites-enabled/default
+sudo cp ./nginx/initial.conf /etc/nginx/conf.d/default.conf
+
+# Certbot certificate generation
+if [ ! -L /usr/bin/certbot ]; then
+    sudo ln -s /snap/bin/certbot /usr/bin/certbot
+fi
+sudo certbot --nginx --non-interactive --agree-tos --email cinevoraces@gmail.com --domains safaridigital.fr,www.safaridigital.fr
+
+# Final nginx configuration
+sudo cp ./nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# Set bash profil
+sudo cp ./scripts/bashrc.sh ~/.bashrc
+
+END_TIME=$(date +%s)
+BUILD_TIME=$((END_TIME - START_TIME))
+echo "###########################################"
+echo "Server initialization completed."
+echo "Build time: $BUILD_TIME seconds"
+echo "###########################################"

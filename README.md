@@ -8,7 +8,8 @@ Use the following command to setup the server
 git clone https://github.com/Cinevoraces/cinevoraces_infra.git && \
 cd cinevoraces_infra && \
 find ./scripts -type f -name "*.sh" -exec chmod +x {} \; && \
-./scripts/init_server.sh
+./scripts/init_server.sh && \
+source ~/.bashrc && \
 ```
 
 ## Documentation
