@@ -2,11 +2,8 @@
 
 START_TIME=$(date +%s)
 
-# Import server functions
-/home/ubuntu/cinevoraces_infra/scripts/on_boot.sh
-
 # Set cron jobs
-(crontab -l 2>/dev/null; echo "@reboot /home/ubuntu/cinevoraces_infra/scripts/on_boot.sh"; echo "00 3 * * * backup_db") | crontab -
+(crontab -l 2>/dev/null; echo "00 3 * * * backup_db") | crontab -
 
 # Install Dependencies
 sudo apt update
@@ -112,6 +109,9 @@ sudo certbot --nginx --non-interactive --agree-tos --email cinevoraces@gmail.com
 
 # Final nginx configuration
 sudo cp ./nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# Set bash profil
+sudo cp ./scripts/bashrc.sh ~/.bashrc
 
 END_TIME=$(date +%s)
 BUILD_TIME=$((END_TIME - START_TIME))
