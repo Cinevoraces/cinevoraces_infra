@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+    postgres:
+        container_name: postgres
+        image: postgres:16.1
+        env_file:
+            - ./cinevoraces/data/.env
+        ports:
+            - 5432:5432
+        restart: always
+        volumes:
+            - database:/var/lib/postgresql/data
+            - ./cinevoraces/data:/data
+
+    api:
+        container_name: api
+        hostname: cinevoraces_api
+        env_file:
+            - ./cinevoraces/api/.env
+            - ./cinevoraces/data/.env
+        depends_on:
+            - postgres
+        build:
+            context: ./cinevoraces/api
+            dockerfile: Dockerfile
+        ports:
+            - 3005:3005
+        restart: always
+        volumes:
+            - fastify_public:/api/public/
+
+    app:
+        container_name: app
+        hostname: cinevoraces_app
+        build:
+            context: ./cinevoraces/app
+            dockerfile: Dockerfile
+        ports:
+            - 3000:3000
+        restart: always
+        depends_on:
+            - api
+
+volumes:
+    fastify_public:
+    database:

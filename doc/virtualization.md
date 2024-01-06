@@ -1,4 +1,4 @@
-# DEV | Setup virtualized production VM
+# Setup virtualized production VM
 
 This guide shows you how to configure a **_"cinevoraces.fr"_** production environment in a VM. This will allow you to test your application/infrastructure in a safe and controlled environment.
 
@@ -8,51 +8,25 @@ _Because testing in production is wrong... Don't do that._
 
 ```
 OVH VPS - Monocore
-Debian GNU/Linux 10 (buster)
+Ubuntu 23 Server (Lunar Lobster)
 2Go RAM
 40Go SSD NVMe
 ```
 
 #### Sources
 
--   [Download Debian Buster](https://www.debian.org/releases/buster/debian-installer/)
+-   [Download Ubuntu Lunar Lobster (server)](https://releases.ubuntu.com/lunar/ubuntu-23.04-live-server-amd64.iso)
 -   [Download VM tool - VirtualBox](https://www.virtualbox.org/)
 -   [Download VM tool - UTM _(Mac only)_](https://mac.getutm.app/)
 
-### Install requirements (VM)
+#### Requirements (VM)
 
-Install the following packages in the debian VM
+-   git
+-   ssh
 
-> -   ssh
-> -   firewalld
+#### Set SSH port (VirtualBox 7.0)
 
-Check that the ssh service is running and set in the firewall
-
-```bash
-firewall-cmd --zone=public --list-services
-```
-
-Add it to your firewall if it's not listed
-
-```bash
-firewall-cmd --zone=public --add-service=ssh --permanent
-firewall-cmd --reload
-```
-
-### Guided installation (VirtualBox 7.0)
-
-#### Create the VM
-
-Create a new VM **manually** in order to skip graphical interface installation and set SSH as a required dependency.
-
-_Refer to Current configuration section for the VM configuration._
-
-![_](./screenshots/virtualization01.png)
-
-#### Set SSH port
-
-Once your Debian VM is installed, open your VM Settings and select the **"Network"** menu.
-
+-   Open your VM Settings and select the **"Network"** menu.
 -   Select an adapter and set it to **"NAT"**
 -   Click on **"Advanced"** then **"Port Forwarding"**
 -   Add a new rule where:
@@ -74,5 +48,5 @@ ssh -p <my_ssh_port> <username>@<my_vm_ip_address>
 That should look like something like that
 
 ```bash
-ssh -p 8090 debian@127.0.0.1
+ssh -p 8090 ubuntu@127.0.0.1
 ```

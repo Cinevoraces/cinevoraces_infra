@@ -1,45 +1,62 @@
 # Cinévoraces Infra
 
-## Setup
+## Initiate server
 
--   Generate your SSH Key
+Use the following command to setup the server
+
+```bash
+git clone https://github.com/Cinevoraces/cinevoraces_infra.git && \
+cd cinevoraces_infra && \
+find ./scripts -type f -name "*.sh" -exec chmod +x {} \; && \
+./scripts/init_server.sh
+```
+
+## Documentation
+
+-   [**Setup virtualized production VM**](./doc/virtualization.md)
+-   [**Setup GDrive remote**](./doc/gdrive_remote.md)
+
+## Server commands
+
+-   **Download/Send backup using ssh**
 
     ```bash
-    ssh-keygen -t ed25519 -C "cinevoraces@gmail.com" -f ~/.ssh/id_ed25519 -N '' && \
-    cat ~/.ssh/id_ed25519.pub
+    scp -P <ssh_port> <username>@<ip_address>:/home/ubuntu/cinevoraces_infra/backup/<backup_name>.tar \<destination_file>.tar
     ```
-
--   Clone the repositories
 
     ```bash
-    git clone git@github.com:Cinevoraces/cinevoraces_infra.git && \
-    git clone git@github.com:Cinevoraces/cinevoraces.git
+    scp -P <ssh_port> local/file.tar <username>@<ip_address>:/home/ubuntu/cinevoraces_infra/backup/
     ```
 
--   Make all scripts executable at _clone/pull_
+-   **Update Nginx config**
 
-    ```bash
-    find ./scripts -type f -name "*.sh" -exec chmod +x {} \;
+    ```sh
+    # Revert config with available backups
+    nginx_conf_revert
+    # Update config using default.conf
+    nginx_conf_update
     ```
 
-### Documentation
+-   **Update Postgress access**
 
-#### Install dependencies
+    ```sh
+    # Enable one or many IP for remote access
+    pg_enable_access
+    # Disable one or many IP for remote access
+    pg_disable_access
+    ```
 
-##### [DEPENDENCIES | Install Docker (./scripts/install_docker.sh)](./scripts/install_docker.sh)
+-   **Set project variables**
 
-#### Developpment
+    ```sh
+    # Open env file using nano, create file if not existing
+    set_app_variables
+    set_api_variables
+    set_postgres_variables
+    ```
 
-##### [DEV | Setup virtualized production VM](./doc/virtualization.md)
+-   [**Generate Password (./scripts/node/generate_psw.mjs)**](./scripts/node/generate_psw.mjs)
 
-#### Debug
-
-##### [DEBUG | Generate Password (./scripts/node/generate_psw.mjs)](./scripts/node/generate_psw.mjs)
-
-> ```sh
-> node ./scripts/node/generate_psw.msj --psw=foo --salt=10
-> ```
-
-#### Recommended tools
-
-##### [TOOLS | Azure Data Studio](https://learn.microsoft.com/en-us/azure-data-studio/download-azure-data-studio?tabs=win-install%2Cwin-user-install%2Credhat-install%2Cwindows-uninstall%2Credhat-uninstall#download-azure-data-studio)
+    ```sh
+    node ./scripts/node/generate_psw.msj --psw=foo --salt=10
+    ```
