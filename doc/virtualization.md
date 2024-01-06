@@ -1,6 +1,6 @@
 # Setup virtualized production VM
 
-This guide shows you how to configure a **_"cinevoraces.fr"_** production environment in a VM. This will allow you to test your application/infrastructure in a safe and controlled environment.
+This guide shows you how to configure a **_"safaridigital.fr"_** production environment in a VM. This will allow you to test your application/infrastructure in a safe and controlled environment.
 
 _Because testing in production is wrong... Don't do that._
 

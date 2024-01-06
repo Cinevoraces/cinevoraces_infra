@@ -61,6 +61,9 @@ sudo systemctl restart ssh.service
 
 # Download cinevoraces from public source
 git clone https://github.com/Cinevoraces/cinevoraces.git
+cd cinevoraces
+git checkout infra_safaridigital
+cd ..
 
 # Set .env files
 if [ ! -f ./cinevoraces/app/.env.local ]; then
