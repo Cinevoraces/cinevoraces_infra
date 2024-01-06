@@ -56,12 +56,6 @@ sudo systemctl enable fail2ban
 sudo systemctl daemon-reload 
 sudo systemctl restart ssh.service
 
-# Download cinevoraces from public source
-git clone https://github.com/Cinevoraces/cinevoraces.git
-cd cinevoraces
-git checkout infra_safaridigital
-cd ..
-
 # Set .env files
 if [ ! -f ./cinevoraces/app/.env.local ]; then
     echo "Set App .env.local file (Frontend)"
