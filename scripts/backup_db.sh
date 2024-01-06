@@ -24,3 +24,52 @@ function backup_db {
             rm "$(ls -t | tail -1)"
     fi
 }
+
+function restore_db {
+    path_to_infra=/home/ubuntu/cinevoraces_infra
+    backup_folder="${path_to_infra}/backup"
+    source "${path_to_infra}/cinevoraces/data/.env"
+
+    # Get a list of backup files
+    backup_files=$(ls $backup_folder)
+
+    # Check if there are any backup files
+    if [ -z "$backup_files" ]; then
+        echo "No backup files found."
+        return 1
+    fi
+
+    # Print the backup files and prompt the user to select one
+    echo "Please select a backup file to restore:"
+    select backup_file in $backup_files Cancel; do
+        case $backup_file in
+            Cancel )
+                echo "Operation cancelled."
+                return 0
+                ;;
+            * )
+                if [ -n "$backup_file" ]; then
+                    # Restore the selected backup file
+                    tar -xvf "${backup_folder}/${backup_file}" -C $backup_folder
+                    
+                    # Stop main containers during file replacement
+                    sudo docker stop api
+                    sudo docker stop app
+
+                    # Update docker volumes
+                    sudo docker exec api rm -rf public
+                    sudo docker cp "${backup_folder}/${backup_file%.*}/public" api:/api/public
+                    sudo docker exec postgres pg_restore -c --no-owner -v -U ${POSTGRES_USER} -d ${POSTGRES_DB} "${backup_folder}/${backup_file%.*}/database_${backup_file%.*}"
+                    sudo docker start api
+                    sudo docker start app
+
+                    # Cleanup folder
+                    rm -rf "${backup_folder}/${backup_file%.*}"
+
+                    echo "Database restored."
+                    return 0
+                fi
+                ;;
+        esac
+    done
+}

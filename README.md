@@ -19,10 +19,14 @@ find ./scripts -type f -name "*.sh" -exec chmod +x {} \; && \
 
 ## Server commands
 
--   **Download backup using ssh**
+-   **Download/Send backup using ssh**
 
     ```bash
     scp -P <ssh_port> <username>@<ip_address>:/home/ubuntu/cinevoraces_infra/backup/<backup_name>.tar \<destination_file>.tar
+    ```
+
+    ```bash
+    scp -P <ssh_port> local/file.tar <username>@<ip_address>:/home/ubuntu/cinevoraces_infra/backup/
     ```
 
 -   **Update Nginx config**
