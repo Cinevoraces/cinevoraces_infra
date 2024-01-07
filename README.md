@@ -19,6 +19,12 @@ source ~/.bashrc
 
 ## Server commands
 
+-   **Update Cinevoraces App with master**
+
+    ```bash
+    update_cinevoraces
+    ```
+
 -   **Download/Send backup using ssh**
 
     ```bash
@@ -27,6 +33,15 @@ source ~/.bashrc
 
     ```bash
     scp -P <ssh_port> local/file.tar <username>@<ip_address>:/home/ubuntu/cinevoraces_infra/backup/
+    ```
+
+-   **Backup/Restore database**
+
+    ```bash
+    # Create a backup and remove the oldest if more than 10 backups
+    backup_db
+    # Look for backups in the /backup folder and prompt user to select one
+    restore_db
     ```
 
 -   **Update Nginx config**
