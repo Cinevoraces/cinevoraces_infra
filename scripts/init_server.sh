@@ -111,7 +111,7 @@ sudo certbot --nginx --non-interactive --agree-tos --email cinevoraces@gmail.com
 sudo cp ./nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # Set bash profil
-sudo cp ./scripts/bashrc.sh ~/.bashrc
+sudo cp ./scripts/.bashrc ~/.bashrc
 
 END_TIME=$(date +%s)
 BUILD_TIME=$((END_TIME - START_TIME))
