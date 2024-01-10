@@ -86,7 +86,9 @@ function restore_db() {
                     # Update docker volumes
                     sudo docker exec api rm -rf public
                     sudo docker cp "${path_to_backup_folder}/${backup_file%.*}/public" api:/api
-                    sudo docker exec postgres pg_restore -c --no-owner -v -U ${POSTGRES_USER} -d ${POSTGRES_DB} "${path_to_backup_folder}/${backup_file%.*}/database_${backup_file%.*}"
+                    sudo docker cp "${path_to_backup_folder}/${backup_file%.*}/database_${backup_file%.*}" postgres:/database_${backup_file%.*}
+                    sudo docker exec postgres pg_restore -c --no-owner -v -U ${POSTGRES_USER} -d ${POSTGRES_DB} "/database_${backup_file%.*}"
+                    sudo docker exec postgres rm -rf /database_${backup_file%.*}
                     sudo docker start api
                     sudo docker start app
 
