@@ -105,7 +105,7 @@ sudo cp ./nginx/initial.conf /etc/nginx/conf.d/default.conf
 if [ ! -L /usr/bin/certbot ]; then
     sudo ln -s /snap/bin/certbot /usr/bin/certbot
 fi
-sudo certbot --nginx --non-interactive --agree-tos --email cinevoraces@gmail.com --domains safaridigital.fr,www.safaridigital.fr
+sudo certbot --nginx --non-interactive --agree-tos --email cinevoraces@gmail.com --domains cinevoraces.fr,www.cinevoraces.fr
 
 # Final nginx configuration
 sudo cp ./nginx/default.conf /etc/nginx/conf.d/default.conf
