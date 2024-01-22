@@ -48,9 +48,13 @@ sudo chmod +x /usr/local/bin/ufw-docker
 yes | sudo ufw-docker install
 sudo systemctl restart ufw
 
-sudo sed -i "s/ListenStream=22/ListenStream=$ssh_port/g" /lib/systemd/system/ssh.socket
+ssh_socker_override_path=/etc/systemd/system/ssh.socket.d
 sudo sed -i "s/#Port 22/Port $ssh_port/g" /etc/ssh/sshd_config
-
+sudo mkdir -p $ssh_socker_override_path
+sudo touch $ssh_socker_override_path/listen.conf
+sudo echo "[Socket]" >> $ssh_socker_override_path/listen.conf
+sudo echo "ListenStream=" >> $ssh_socker_override_path/listen.conf
+sudo echo "ListenStream=$ssh_port" >> $ssh_socker_override_path/listen.conf
 sudo systemctl start nginx
 sudo systemctl enable fail2ban
 sudo systemctl daemon-reload 
