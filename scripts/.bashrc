@@ -40,17 +40,17 @@ function backup_db() {
     sudo docker exec postgres pg_dump -U ${POSTGRES_USER} -F c ${POSTGRES_DB} -v -Z 9  > "${path_to_backup}/database_backup_${today}"
     sudo docker cp api:/api/public "${path_to_backup}/public" 
     tar -cvf "${path_to_backup}.tar" $path_to_backup
-    rm -rf $path_to_backup
+    sudo rm -rf $path_to_backup
     echo "Backup completed => "${path_to_backup}.tar""
 
     # Delete oldest backup if more than 10 backups saved
-    backup_count=$(ls | wc -l)
+    backup_count=$(( $(ls -A $path_to_backup_folder | wc -l) - 1 ))
     if [ $backup_count -lt 11 ]
         then
             echo 'Less than 10 backups saved, keeping previous backups.'
         else
             echo '10 backups already saved, deleting oldest'
-            rm "$(ls -t | tail -1)"
+            sudo rm "$(find $path_to_backup_folder -type f -printf '%T+ %p\n' | sort | head -n 1 | awk '{print $2}')"
     fi
 }
 
@@ -91,7 +91,7 @@ function restore_db() {
                     sudo docker start app
 
                     # Cleanup folder
-                    rm -rf "${path_to_backup_folder}/${backup_file%.*}"
+                    sudo rm -rf "${path_to_backup_folder}/${backup_file%.*}"
 
                     echo "Database restored."
                     return 0
