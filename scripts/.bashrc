@@ -1,3 +1,38 @@
+###############################################
+# Allowed functions for non-interactive calls #
+# eg crobjobs                                 #
+###############################################
+
+# Variables
+
+cinevo_path=/home/ubuntu/cinevoraces_infra/cinevoraces
+path_to_infra=/home/ubuntu/cinevoraces_infra
+path_to_backup_folder="${path_to_infra}/backup"
+
+function backup_db() {
+    today=`date +%Y-%m-%d.%H:%M:%S`
+    path_to_backup="${path_to_backup_folder}/backup_${today}"
+    source "${path_to_infra}/cinevoraces/data/.env"
+
+    # Create backup
+    mkdir $path_to_backup
+    sudo docker exec postgres pg_dump -U ${POSTGRES_USER} -F c ${POSTGRES_DB} -v -Z 9  > "${path_to_backup}/database_backup_${today}"
+    sudo docker cp api:/api/public "${path_to_backup}/public"
+    tar -cvf "${path_to_backup}.tar" $path_to_backup
+    sudo rm -rf $path_to_backup
+    echo "Backup completed => "${path_to_backup}.tar""
+
+    # Delete oldest backup if more than 10 backups saved
+    backup_count=$(( $(ls -A $path_to_backup_folder | wc -l) - 1 ))
+    if [ $backup_count -lt 11 ]
+        then
+            echo 'Less than 10 backups saved, keeping previous backups.'
+        else
+            echo '10 backups already saved, deleting oldest'
+            sudo rm "$(find $path_to_backup_folder -type f -printf '%T+ %p\n' | sort | head -n 1 | awk '{print $2}')"
+    fi
+}
+
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;
@@ -21,38 +56,9 @@ PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[0
 # Aliases
 alias ls='ls --color=auto -la'
 
-# Variables
-cinevo_path=/home/ubuntu/cinevoraces_infra/cinevoraces
-path_to_infra=/home/ubuntu/cinevoraces_infra
-path_to_backup_folder="${path_to_infra}/backup"
-
 ######################################
 ## Server functions
 ######################################
-
-function backup_db() {
-    today=`date +%Y-%m-%d.%H:%M:%S`
-    path_to_backup="${path_to_backup_folder}/backup_${today}"
-    source "${path_to_infra}/cinevoraces/data/.env"
-
-    # Create backup
-    mkdir $path_to_backup
-    sudo docker exec postgres pg_dump -U ${POSTGRES_USER} -F c ${POSTGRES_DB} -v -Z 9  > "${path_to_backup}/database_backup_${today}"
-    sudo docker cp api:/api/public "${path_to_backup}/public" 
-    tar -cvf "${path_to_backup}.tar" $path_to_backup
-    sudo rm -rf $path_to_backup
-    echo "Backup completed => "${path_to_backup}.tar""
-
-    # Delete oldest backup if more than 10 backups saved
-    backup_count=$(( $(ls -A $path_to_backup_folder | wc -l) - 1 ))
-    if [ $backup_count -lt 11 ]
-        then
-            echo 'Less than 10 backups saved, keeping previous backups.'
-        else
-            echo '10 backups already saved, deleting oldest'
-            sudo rm "$(find $path_to_backup_folder -type f -printf '%T+ %p\n' | sort | head -n 1 | awk '{print $2}')"
-    fi
-}
 
 function restore_db() {
     source "${path_to_infra}/cinevoraces/data/.env"
