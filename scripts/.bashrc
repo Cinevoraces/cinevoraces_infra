@@ -10,17 +10,19 @@ path_to_infra=/home/ubuntu/cinevoraces_infra
 path_to_backup_folder="${path_to_infra}/backup"
 
 function backup_db() {
-    today=`date +%Y-%m-%d.%H:%M:%S`
-    path_to_backup="${path_to_backup_folder}/backup_${today}"
+    today=`date +%Y-%m-%d-%H-%M-%S`
+    backup_name="backup_${today}"
+    path_to_backup="${path_to_backup_folder}/${backup_name}"
     source "${path_to_infra}/cinevoraces/data/.env"
 
     # Create backup
     mkdir $path_to_backup
-    sudo docker exec postgres pg_dump -U ${POSTGRES_USER} -F c ${POSTGRES_DB} -v -Z 9  > "${path_to_backup}/database_backup_${today}"
+    sudo docker exec postgres pg_dump -U ${POSTGRES_USER} -F c ${POSTGRES_DB} -v -Z 9  > "${path_to_backup}/database_${backup_name}"
     sudo docker cp api:/api/public "${path_to_backup}/public"
-    tar -cvf "${path_to_backup}.tar" $path_to_backup
+    cd "$path_to_backup_folder" && tar -cvf "${backup_name}.tar" "${backup_name}"
+    cd
     sudo rm -rf $path_to_backup
-    echo "Backup completed => "${path_to_backup}.tar""
+    echo "Backup completed => ${path_to_backup}/${backup_name}.tar"
 
     # Delete oldest backup if more than 10 backups saved
     backup_count=$(( $(ls -A $path_to_backup_folder | wc -l) - 1 ))
